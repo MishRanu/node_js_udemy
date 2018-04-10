@@ -1,11 +1,28 @@
 const express = require('express'); 
 const hbs = require('hbs'); 
+const fs = require('fs')
 
 var app = express(); 
 
 hbs.registerPartials(__dirname + '/views/partials')
 //Piece of express middleware
 app.set('view engine', 'hbs');
+
+
+app.use((req, res, next)=>{
+    time_now = new Date().toString();
+    info = `${time_now} method: ${req.method} url: ${req.url} \n`;
+    fs.appendFileSync('log.txt', info);
+    console.log(info);
+    next();
+});
+
+app.use((req, res, next)=> {
+    res.render('maintenance.hbs', {
+        pageTitle: 'Maintenance Page', 
+        welcomeMessage: 'Sorry! The website is under maintenance. Please visit later.'
+    });
+});
 
 app.use(express.static(__dirname + '/public')); 
 
