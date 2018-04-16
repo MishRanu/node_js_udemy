@@ -1,18 +1,56 @@
+require('./config/config'); 
 // const mongoose = require('./db/mongoose'); 
-const User = require('./models/user.js');
+const {User} = require('./models/user.js');
 const {Todo} = require('./models/todo.js');
-const config = require('./config/config'); 
 const express = require('express'); 
 const bodyparser = require('body-parser'); 
 const {mongoose} = require('./db/mongoose'); 
+const _ = require('lodash'); 
+var {authenticate} = require('./middleware/authenticate'); 
 
 const app = express(); 
+const port = process.env.PORT;
 
 app.use(bodyparser.json());
 
 app.get("/", (req, res)=>{
     res.send({message: "Welcome to my Todo application"}).status(200); 
 });
+
+app.post('/users', (req, res)=> {
+    var body = _.pick(req.body, ['email', 'password']); 
+    console.log(body); 
+    var user = new User(body); 
+
+    user.save().then(()=>{
+        return user.generateAuthToken(); 
+    }).then((token)=>{
+        res.header({'x-auth':token}).send(user); 
+    })
+    .catch((e)=> {
+        res.status(400).send(e); 
+    }); 
+}); 
+
+
+
+app.get('/users/me', authenticate, (req, res)=>{
+    res.send(req.user); 
+}); 
+
+// app.get('/users/me', (req, res)=>{
+//     var token = req.header('x-auth'); 
+//     console.log(token); 
+//     User.findByToken(token).then((user)=>{
+//         if(!user){
+//             return Promise.reject(); 
+//         }
+//         res.send(user); 
+//     })
+//     .catch((e)=> {
+//         res.status(401).send(); 
+//     }); 
+// }); 
 
 app.post('/todos', (req, res)=> {
    //if the post request is successful send 200 request, 
@@ -89,7 +127,7 @@ app.get('/todos/delete/:id', (req, res)=>{
 
 });
 
-app.listen(3000, ()=>{
+app.listen(port, ()=>{
     console.log("Server start at port 3000")
 });
 
