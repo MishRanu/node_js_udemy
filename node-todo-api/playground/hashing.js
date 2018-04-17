@@ -1,37 +1,52 @@
 const {SHA256} = require('crypto-js'); 
 const jwt = require('jsonwebtoken'); 
+const bcrypt = require('bcryptjs'); 
 
-var data = { 
-    id: 10
-}
-var token = jwt.sign(data, '123abc'); 
-console.log(token); 
+var password = '123abc'; 
 
-console.log(jwt.verify(token, "123abc")); 
-// jwt.verify
+// bcrypt.genSalt(10, (err, salt)=>{
+//     bcrypt.hash(password, salt, (err, hash)=>{
+//         console.log(hash); 
+//     });
+// });
 
-var message = "I am user number 3"; 
-var hash = SHA256(message).toString(); 
+var hashedPassword = '$2a$10$jJ2FAz5NryXV5L9qI4I.1emqNe1V/p49.5bS8IgcMTruGY6IWpe1S'; 
+bcrypt.compare(password, hashedPassword, (err, res)=>{
+    console.log(res); 
+}); 
 
-console.log(`Message: ${message}`); 
-console.log(`Hash: ${hash}`); 
 
-var data = {
-    id: 4
-}; 
+// var data = { 
+//     id: 10
+// }
+// var token = jwt.sign(data, '123abc'); 
+// console.log(token); 
 
-var token = {
-    data, 
-    hash: SHA256(JSON.stringify(data) + 'somesecret').toString()
-};
+// console.log(jwt.verify(token, "123abc")); 
+// // jwt.verify
 
-token.data.id = 5;
-var resultHash = SHA256(JSON.stringify(token.data)+ 'somesecret').toString(); 
+// var message = "I am user number 3"; 
+// var hash = SHA256(message).toString(); 
 
-if(resultHash===token.hash){
-    console.log("Data was not changed"); 
-    console.log(token.hash); 
-}
-else console.log("Data was changed. Do not trust! ");
+// console.log(`Message: ${message}`); 
+// console.log(`Hash: ${hash}`); 
 
-//JSON web token: jwt makes it really easy to make it possible
+// var data = {
+//     id: 4
+// }; 
+
+// var token = {
+//     data, 
+//     hash: SHA256(JSON.stringify(data) + 'somesecret').toString()
+// };
+
+// token.data.id = 5;
+// var resultHash = SHA256(JSON.stringify(token.data)+ 'somesecret').toString(); 
+
+// if(resultHash===token.hash){
+//     console.log("Data was not changed"); 
+//     console.log(token.hash); 
+// }
+// else console.log("Data was changed. Do not trust! ");
+
+// //JSON web token: jwt makes it really easy to make it possible

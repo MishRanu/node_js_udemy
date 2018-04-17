@@ -33,9 +33,44 @@ app.post('/users', (req, res)=> {
 }); 
 
 
-
 app.get('/users/me', authenticate, (req, res)=>{
     res.send(req.user); 
+}); 
+
+// Post /users/login (email, password)
+
+app.post('/users/login', (req, res)=>{
+    var body = _.pick(req.body, ['email', 'password']); 
+    User.findByCredentials(body.email, body.password).then((user)=>{
+        user.generateAuthToken().then((token)=>{
+            res.header({'x-auth':token}).send(user); 
+        });
+    })
+    .catch((e)=> {
+        res.status(400).send(); 
+    }); 
+})
+
+app.post('/users/login', (req, res)=>{
+    var email = req.body.email; 
+    var password = req.body.password;
+    var user = new User({email, password});
+    user.verifyPassword().then((matchedUser)=>{
+        return matchedUser.generateAuthToken();
+    }).then((token)=>{
+        res.header({'x-auth':token}).send(); 
+    })
+    .catch((e)=> {
+        res.status(401).send(e); 
+    });
+})
+
+app.delete("/users/me/token", authenticate, (req, res)=> {
+    req.user.removeToken(req.token).then(()=>{
+        res.status(200).send();
+    }).catch(()=>{
+        res.status(400).send(); 
+    });
 }); 
 
 // app.get('/users/me', (req, res)=>{
@@ -51,6 +86,7 @@ app.get('/users/me', authenticate, (req, res)=>{
 //         res.status(401).send(); 
 //     }); 
 // }); 
+
 
 app.post('/todos', (req, res)=> {
    //if the post request is successful send 200 request, 
