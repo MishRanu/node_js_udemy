@@ -217,4 +217,29 @@ describe("POST /users/login", ()=>{
         .expect(400)
         .end(done); 
     });
+}); 
+
+describe("DELETE /users/me/token", ()=>{
+    this.timeout = 10000; 
+    beforeEach(populateUsers); 
+
+    var token = users[0].tokens[0].token; 
+    it('should remove auth token on logout', (done)=>{
+        request(app)
+            .delete('/users/me/token')
+            .set('x-auth', token)
+            .send({})
+            .expect(200)
+            .end((err, res)=>{
+                if(err){
+                    return done(err)
+                }
+
+                User.findByToken(token).then((res)=>{
+                    expect(res).toBeFalsy();
+                    done();
+                })
+                .catch((err)=> done(err));
+            });
+    });
 })
