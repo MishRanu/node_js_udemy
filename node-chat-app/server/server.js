@@ -24,9 +24,10 @@ io.on('connection', function(socket){
         io.emit('newMessage', generateMessage(message.from, message.text)); 
         }); 
 
-    socket.on('createLocationMessage', function(message){
+    socket.on('createLocationMessage', function(message, callback){
         console.log("Received location message", message.from); 
         io.emit('newLocationMessage', generateLocationMessage(message.from, message.latitude, message.longitude)); 
+        callback("Received the location message"); 
     })
 });
 

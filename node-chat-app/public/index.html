@@ -2,6 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8">
+        <link rel="stylesheet" src="/css/styles.css"></script>
         <script src="/socket.io/socket.io.js"> </script>
         <script src="/js/libs/jquery-3.3.1.js"></script>
         <script src="/js/libs/moment.js"></script>
@@ -11,15 +12,19 @@
     <body>
         <div id="messagesList"> </div>
         <script id="messageTemplate" type="x-tmpl-mustache">
-            <h4>{{from}}</h4>
-            <span>{{createdTime}}</span>
-            <p>{{text}}</p>
+            <div>
+                <h4>{{from}}</h4>
+                <span>{{createdAt}}</span>
+                <p>{{text}}</p>
+            </div>
         </script> 
                 
         <script id="locationMessageTemplate" type="x-tmpl-mustache">
+            <div>
                 <h4>{{from}}</h4>
-                <span>{{createdTime}}</span>
-                <p><a href={{url}}> {{text}}</a> </p>
+                <span>{{createdAt}}</span>
+                <p><a target="_blank" href={{url}}>{{from}} has send his location</a></p>
+            </div>
         </script> 
                         
         <form id="messagesForm">
