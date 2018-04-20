@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="/socket.io/socket.io.js"> </script>
+        <script src="/js/libs/jquery-3.3.1.js"></script>
+        <script src="/js/libs/moment.js"></script>
+        <script src="/js/libs/mustache.js"></script>
+        <script src="/js/index.js"></script>        
+    </head>
+    <body>
+        <div id="messagesList"> </div>
+        <script id="messageTemplate" type="x-tmpl-mustache">
+            <h4>{{from}}</h4>
+            <span>{{createdTime}}</span>
+            <p>{{text}}</p>
+        </script> 
+                
+        <script id="locationMessageTemplate" type="x-tmpl-mustache">
+                <h4>{{from}}</h4>
+                <span>{{createdTime}}</span>
+                <p><a href={{url}}> {{text}}</a> </p>
+        </script> 
+                        
+        <form id="messagesForm">
+            <input id="inputMessage" type="text"></input>
+            <input type="submit"></input>
+        </form>
+        <button id="sendLocation">Send Location</button>
+    </body>
+</html>

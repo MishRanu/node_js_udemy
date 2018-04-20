@@ -23,12 +23,13 @@ describe("POST /todos", function() {
     this.timeout(10000);  
     beforeEach(populateUsers); 
     beforeEach(populateTodos); 
-      
+    
     it('should test the scenario with valid inputs', (done)=> {
         var text = "Some test text here";
 
         request(app)
             .post('/todos')
+            .set('x-auth', users[0].tokens[0].token)
             .send({text})
             .expect(200)
             .expect((res)=>{
@@ -50,6 +51,7 @@ describe("POST /todos", function() {
         
         request(app)
             .post('/todos')
+            .set('x-auth', users[0].tokens[0].token)
             .send({})
             .expect(400)
             .end((err, res)=>{
@@ -71,12 +73,14 @@ describe("GET /todos", function(){
 
         request(app)
             .get('/todos')
+            .set('x-auth', users[0].tokens[0].token)
             .expect(200)
             .expect(function(res){
-                expect(res.body.docs.length).toBe(2); 
+                expect(res.body.docs.length).toBe(1); 
             })
             .end(done); 
     }); 
+
 });
 
 
@@ -87,10 +91,19 @@ describe("GET /todos/:id", function(){
 
         request(app)
         .get(`/todos/${todos[0]._id.toHexString()}`)
+        .set('x-auth',  users[0].tokens[0].token)
         .expect(200)
         .expect((res)=>{
             expect(res.body.docs.text).toBe(todos[0].text);
         })
+        .end(done); 
+    }); 
+
+    it("not should return the todo with specified id because of different user", (done)=>{
+        request(app)
+        .get(`/todos/${todos[1]._id.toHexString()}`)
+        .set('x-auth', users[0].tokens[0].token)
+        .expect(404)
         .end(done); 
     }); 
 }); 
@@ -124,7 +137,9 @@ describe("GET /users/me", function(){
 }); 
 
 
-describe("POST /users", ()=>{
+describe("POST /users", function(){
+    this.timeout(10000);
+
     it('should create a user', (done)=>{
         var email = 'example@example.com';
         var password = '123mnb!'; 
@@ -219,8 +234,8 @@ describe("POST /users/login", ()=>{
     });
 }); 
 
-describe("DELETE /users/me/token", ()=>{
-    this.timeout = 10000; 
+describe("DELETE /users/me/token", function(){
+    this.timeout(10000); 
     beforeEach(populateUsers); 
 
     var token = users[0].tokens[0].token; 

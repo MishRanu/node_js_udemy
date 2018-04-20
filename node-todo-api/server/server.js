@@ -29,7 +29,7 @@ app.post('/users', (req, res)=> {
     })
     .catch((e)=> {
         res.status(400).send(e); 
-    }); 
+    });
 }); 
 
 
@@ -72,7 +72,6 @@ app.delete("/users/me/token", authenticate, (req, res)=> {
         res.status(400).send(); 
     });
 }); 
-
 // app.get('/users/me', (req, res)=>{
 //     var token = req.header('x-auth'); 
 //     console.log(token); 
@@ -88,12 +87,13 @@ app.delete("/users/me/token", authenticate, (req, res)=> {
 // }); 
 
 
-app.post('/todos', (req, res)=> {
+app.post('/todos', authenticate, (req, res)=> {
    //if the post request is successful send 200 request, 
    //else if the request is not successful due to some errors, sent a 400 bad request    
    var text = req.body.text;
    var todoNext = new Todo({
-        'text':text
+        'text':text, 
+        '_creator': req.user._id
     });
     todoNext.save().then((docs)=>{
         res.status(200).json(docs); 
@@ -103,9 +103,9 @@ app.post('/todos', (req, res)=> {
     });
 });
 
-app.get('/todos', (req, res)=> {
+app.get('/todos', authenticate, (req, res)=> {
 
-    Todo.find().then((docs)=> { 
+    Todo.find({'_creator':req.user._id}).then((docs)=> { 
         res.status(200).send({docs});
     })
     .catch((err)=>{
@@ -114,12 +114,12 @@ app.get('/todos', (req, res)=> {
 }); 
 
 
-app.get('/todos/:id', (req, res)=>{
+app.get('/todos/:id', authenticate, (req, res)=>{
     var todoId = req.params['id'];
     if(!mongoose.Types.ObjectId.isValid(todoId)){
         return res.status(400).send(); 
     }
-    Todo.findOne({_id: todoId}).then((docs)=> {
+    Todo.findOne({_id: todoId, _creator: req.user._id}).then((docs)=> {
         if(!docs){
             return res.status(404).send();
         }
@@ -130,12 +130,12 @@ app.get('/todos/:id', (req, res)=>{
     }); 
 });
 
-app.patch('/todos/:id', (req, res)=>{
+app.patch('/todos/:id', authenticate, (req, res)=>{
     var todoId = req.params['id']; 
     if(!mongoose.Types.ObjectId.isValid(todoId)){
         return res.status(400).send(); 
     }
-    Todo.findByIdAndUpdate({_id:todoId}, {$set:{
+    Todo.findByIdAndUpdate({_id:todoId, _creator:req.user._id}, {$set:{
         completed: true,
         completedAt: new Date().getTime()
     }}, {new:true}).then((docs)=>{
@@ -151,7 +151,7 @@ app.get('/todos/delete/:id', (req, res)=>{
     if(!mongoose.Types.ObjectId.isValid(todoId)){
         return res.status(400).send(); 
     }
-    Todo.findOneAndRemove({_id: todoId}).then((docs)=>{
+    Todo.findOneAndRemove({_id: todoId, _creator: req.user._id}).then((docs)=>{
         if(!docs)
             return res.status(404).send()
         
